@@ -25,9 +25,9 @@ namespace Api.Common
 
 
                  var mongoClient = new MongoClient("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+1");
-               // var mongoClient = new MongoClient(mongoSetting.connectionstring);
-                 var _database = mongoClient.GetDatabase("customers_db");
-               // var _database = mongoClient.GetDatabase(dbsetiing.database);
+                   // var mongoClient = new MongoClient(mongoSetting.connectionstring);
+                     var _database = mongoClient.GetDatabase("customers_db");
+                   // var _database = mongoClient.GetDatabase(dbsetiing.database);
                 return _database;
             });
            

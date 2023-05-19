@@ -9,6 +9,14 @@ namespace web_api.Middleware
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            if (!context.Request.Path.StartsWithSegments("/api/Customer")) 
+            {
+
+                await next(context);
+                return;
+
+
+            }
             if (!context.Request.Headers.ContainsKey("Authorization"))
             {
                 context.Response.StatusCode = 401;
@@ -47,6 +55,8 @@ namespace web_api.Middleware
         {
 
             return app.UseMiddleware<MyMiddleware>();
+           
+
         }
     }
 }

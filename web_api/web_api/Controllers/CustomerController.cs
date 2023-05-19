@@ -1,5 +1,6 @@
 ﻿using Api.Common;
 using Api.Common.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using System.ComponentModel.DataAnnotations;
@@ -9,6 +10,7 @@ using web_api.DTos;
 
 namespace web_api.Controllers
 {
+   [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
