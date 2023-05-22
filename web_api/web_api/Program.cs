@@ -19,9 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // ... Configure Swagger options, if needed
-
-    // Add the security definition for your authentication scheme
+    
     options.AddSecurityDefinition("basic", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
@@ -48,14 +46,13 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddMongo();
-
 builder.Services.AddRepositry<Customer>("customers");
 builder.Services.AddSingleton<IDatabaseSettings>(db => db.GetRequiredService<IOptions<DatabaseSettings>>().Value);
 builder.Services.AddScoped<UserService>();
-builder.Services.AddTransient<MyMiddleware>();
+builder.Services.AddTransient<CustomAuthentication>();
 
 
- 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -68,7 +65,37 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
     });
 }
-app.MyMiddleware();
+//app.MyMiddleware();
+app.UseRouting();
+
+
+app.UseCustomAuthentication();
+// Apply custom authentication middleware using endpoint metadata
+//app.Use(async (context, next) =>
+//{
+//    var endpoint = context.GetEndpoint();
+//    if (endpoint?.Metadata.GetMetadata<CustomAuthenticationAttribute>() is CustomAuthenticationAttribute attribute)
+//    {
+//        var customAuthenticationMiddleware = context.RequestServices.GetRequiredService<CustomAuthentication>();
+//        await customAuthenticationMiddleware.InvokeAsync(context, next);
+//    }
+//    else
+//    {
+//        await next();
+//    }
+//});
+
+// Other middleware configuration
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
+
+
+
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

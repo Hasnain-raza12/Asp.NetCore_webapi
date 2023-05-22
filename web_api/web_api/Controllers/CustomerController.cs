@@ -4,13 +4,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Permissions;
+
 using web_api.DTos;
+using web_api.Middleware;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace web_api.Controllers
 {
-   
+    
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
@@ -21,12 +24,15 @@ namespace web_api.Controllers
         {
             _customerRepo = customerRepo;
         }
+        
         [HttpGet]
+        [CustomAuthentication("metadata-value")]
         public IEnumerable<Customer> GetAll()
         {
             return _customerRepo.GetAll();
         }
         [HttpGet("{id}")]
+       // [Route("getid")]
         public Customer GetId(string id)
         {
             return _customerRepo.GetbyId( id);
@@ -50,6 +56,7 @@ namespace web_api.Controllers
         
         }
         [HttpPut]
+       [Route("update")]
         public void Update(UpdateCustomer c)
         {
             var customer = new Customer
@@ -67,6 +74,7 @@ namespace web_api.Controllers
         }
 
         [HttpDelete("{id}")]
+       // [Route("delete")]
         public void Delete(string id) {
             _customerRepo.Delete(id);
         }

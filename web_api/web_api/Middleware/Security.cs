@@ -1,23 +1,15 @@
-﻿using Amazon.Runtime.Internal.Transform;
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace web_api.Middleware
 {
-    public class MyMiddleware : IMiddleware
+    // You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project
+    public class Security
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            if (!context.Request.Path.StartsWithSegments("/api/Customer/getALL")) 
-            {
-
-                await next(context);
-                return;
-
-
-            }
-
             if (!context.Request.Headers.ContainsKey("Authorization"))
             {
                 context.Response.StatusCode = 401;
@@ -27,13 +19,13 @@ namespace web_api.Middleware
             }
             var header = context.Request.Headers["Authorization"].ToString();
             var encodedCre = header.Substring(6);
-            var creds =Encoding.UTF8.GetString(Convert.FromBase64String(encodedCre));
+            var creds = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCre));
             string[] uidpwd = creds.Split(':');
 
             var uid = uidpwd[0];
             var upass = uidpwd[1];
 
-            if (uid=="Hasnain" && upass=="pass")
+            if (uid == "Hasnain" && upass == "pass")
             {
                 await next(context);
             }
@@ -46,18 +38,14 @@ namespace web_api.Middleware
 
 
         }
-
-       
     }
-    public static class CustomMiddlewareExtension
+        
+        // Extension method used to add the middleware to the HTTP request pipeline.
+        public static class SecurityExtensions
     {
-
-        public static IApplicationBuilder MyMiddleware(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSecurity(this IApplicationBuilder app)
         {
-
-            return app.UseMiddleware<MyMiddleware>();
-           
-
+            return app.UseMiddleware<Security>();
         }
     }
 }
