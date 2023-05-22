@@ -10,7 +10,7 @@ using web_api.DTos;
 
 namespace web_api.Controllers
 {
-   [Authorize]
+   
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase

@@ -9,32 +9,43 @@ using web_api;
 using web_api.Database;
 using ConfigurationManager = web_api.ConfigurationManager;
 using web_api.Middleware;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddSingleton<IDatabaseSettings>(db => db.GetRequiredService<IOptions<DatabaseSettings>>().Value);
-// Add services to the container.
-
 builder.Services.AddControllers();
-builder.Services.AddAuthentication(opt => {
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = ConfigurationManager.AppSetting["JWT:ValidIssuer"],
-            ValidAudience = ConfigurationManager.AppSetting["JWT:ValidAudience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ConfigurationManager.AppSetting["JWT:Secret"]))
-        };
-    });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    // ... Configure Swagger options, if needed
+
+    // Add the security definition for your authentication scheme
+    options.AddSecurityDefinition("basic", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "basic",
+        Description = "Basic Authorization header using the Bearer scheme."
+    });
+
+    // Apply the security requirement to all operations in Swagger
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "basic"
+                    }
+                },
+                new string[] { }
+            }
+        });
+});
+
 builder.Services.AddSwaggerGen();
 builder.Services.AddMongo();
 
@@ -52,13 +63,16 @@ if (app.Environment.IsDevelopment())
 {
     
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+    });
 }
-
+app.MyMiddleware();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.UseAuthorization();
 //app.MyMiddleware();
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
 app.Run();
