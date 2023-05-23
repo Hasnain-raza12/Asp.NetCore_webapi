@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,41 +10,31 @@ namespace web_api.Middleware
     public class CustomAuthentication
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-        {
-            var endpoint = context.GetEndpoint();
-            if (endpoint?.Metadata.GetMetadata<CustomAuthenticationAttribute>() is CustomAuthenticationAttribute attribute &&
-                attribute.MetadataProperty == "metadata-value")
+        { 
+            if (!context.Request.Headers.ContainsKey("Authorization"))
             {
-                if (!context.Request.Headers.ContainsKey("Authorization"))
-                {
-                    context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Unauthorized");
-                    return;
-                }
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("UnAuthorized");
 
-                string authorizationHeader = context.Request.Headers["Authorization"];
+                return;
+            }
+            var header = context.Request.Headers["Authorization"].ToString();
+            var encodedCre = header.Substring(6);
+            var creds = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCre));
+            string[] uidpwd = creds.Split(':');
 
-                string encodedCredentials = authorizationHeader.Substring("Basic ".Length).Trim();
-                string credentials = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCredentials));
-                string[] uidpwd = credentials.Split(':');
+            var uid = uidpwd[0];
+            var upass = uidpwd[1];
 
-                var uid = uidpwd[0];
-                var upass = uidpwd[1];
-
-                if (uid == "Hasnain" && upass == "pass")
-                {
-                    await next(context);
-                }
-                else
-                {
-                    context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Unauthorized");
-                    return;
-                }
+            if (uid == "Hasnain" && upass == "pass")
+            {
+                await next(context);
             }
             else
             {
-                await next(context);
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("UnAuthorized");
+                return;
             }
         }
     }

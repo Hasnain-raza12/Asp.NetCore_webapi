@@ -26,7 +26,7 @@ namespace web_api.Controllers
         }
         
         [HttpGet]
-        [CustomAuthentication("metadata-value")]
+       [LoginRequired("metadata-value")]
         public IEnumerable<Customer> GetAll()
         {
             return _customerRepo.GetAll();
@@ -56,7 +56,7 @@ namespace web_api.Controllers
         
         }
         [HttpPut]
-       [Route("update")]
+        [LoginRequired("metadata-value")]
         public void Update(UpdateCustomer c)
         {
             var customer = new Customer

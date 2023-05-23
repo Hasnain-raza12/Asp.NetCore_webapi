@@ -1,13 +1,13 @@
 ﻿namespace web_api.Middleware
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    //[AttributeUsage(AttributeTargets.Method)]
     public class CustomAuthenticationAttribute:Attribute
     {
-        public string MetadataProperty { get; set; }
+        //public string MetadataProperty { get; set; }
 
-        public CustomAuthenticationAttribute(string metadataProperty)
-        {
-            MetadataProperty = metadataProperty;
-        }
+        //public CustomAuthenticationAttribute(string metadataProperty)
+        //{
+        //    MetadataProperty = metadataProperty;
+        //}
     }
 }
